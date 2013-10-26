@@ -13,8 +13,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        widget.cpp
+        widget.cpp \
+    MMatrix.cpp
 
-HEADERS  += widget.h
+HEADERS  += widget.h \
+    MMatrix.h
 
 FORMS    += widget.ui
