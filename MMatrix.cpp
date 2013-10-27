@@ -34,6 +34,26 @@ double MVector4D::w() const
     return cw;
 }
 
+void MVector4D::setX(double xx)
+{
+    cx = xx;
+}
+
+void MVector4D::setY(double yy)
+{
+    cy = yy;
+}
+
+void MVector4D::setZ(double zz)
+{
+    cz = zz;
+}
+
+void MVector4D::setW(double ww)
+{
+    cw = ww;
+}
+
 void MVector4D::printVector(std::ostream &out) const
 {
     out << cx << ' ' << cy << ' ' << cz << ' ' << cw << '\n';
@@ -48,6 +68,32 @@ MVector4D MVector4D::operator^(const MVector4D &other) const
     return MVector4D((cy*other.cz-cz*other.cy),
                      -(cx*other.cz-cz*other.cx),
                      (cx*other.cy-cy*other.cx));
+}
+
+double MVector4D::operator*(const MVector4D &other) const
+{
+    return cx*other.cx+cy*other.cy+cz*other.cz;
+}
+
+void MVector4D::homogenization(){
+    cx = cx/cw;
+    cy = cy/cw;
+    cz = cz/cw;
+    cw = 1;
+}
+
+double MVector4D::abs()
+{
+    return sqrt(cx*cx+cy*cy+cz*cz);
+}
+
+MVector4D MVector4D::normalize()
+{
+    double l = abs();
+    cx = cx/l;
+    cy = cy/l;
+    cz = cz/l;
+    return *this;
 }
 
 

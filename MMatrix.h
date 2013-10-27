@@ -37,9 +37,17 @@ public:
     double y() const;
     double z() const;
     double w() const;
+    void setX(double xx);
+    void setY(double yy);
+    void setZ(double zz);
+    void setW(double ww);
     void printVector(std::ostream & out) const;
     MVector4D operator-(const MVector4D & other) const;
     MVector4D operator^(const MVector4D & other) const;
+    double operator*(const MVector4D & other) const;
+    void homogenization();
+    MVector4D normalize();
+    double abs();
 };
 
 class MMatrix3D
