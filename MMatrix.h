@@ -38,6 +38,8 @@ public:
     double z() const;
     double w() const;
     void printVector(std::ostream & out) const;
+    MVector4D operator-(const MVector4D & other) const;
+    MVector4D operator^(const MVector4D & other) const;
 };
 
 class MMatrix3D

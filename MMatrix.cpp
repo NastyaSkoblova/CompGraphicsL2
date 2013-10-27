@@ -39,6 +39,17 @@ void MVector4D::printVector(std::ostream &out) const
     out << cx << ' ' << cy << ' ' << cz << ' ' << cw << '\n';
 }
 
+MVector4D MVector4D::operator-(const MVector4D &other) const {
+    return MVector4D(cx-other.cx, cy-other.cy, cz-other.cz);
+}
+
+MVector4D MVector4D::operator^(const MVector4D &other) const
+{
+    return MVector4D((cy*other.cz-cz*other.cy),
+                     -(cx*other.cz-cz*other.cx),
+                     (cx*other.cy-cy*other.cx));
+}
+
 
 MMatrix3D::MMatrix3D(double a11, double a12, double a13,
                      double a21, double a22, double a23,

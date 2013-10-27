@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = CompGraphicsL2
 TEMPLATE = app
 
+QMAKE_CXXFLAGS += -std=c++0x
 
 SOURCES += main.cpp\
         widget.cpp \
