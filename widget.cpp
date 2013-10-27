@@ -10,6 +10,7 @@ Widget::Widget(QWidget *parent) :
     ui->setupUi(this);
     switchshape = Thor;
     hInvisible = false;
+    C = false;
     A = 100;
     B = 60;
     D = 30;
