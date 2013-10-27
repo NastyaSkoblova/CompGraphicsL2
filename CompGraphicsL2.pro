@@ -14,9 +14,11 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         widget.cpp \
-    MMatrix.cpp
+    MMatrix.cpp \
+    mpolygon.cpp
 
 HEADERS  += widget.h \
-    MMatrix.h
+    MMatrix.h \
+    mpolygon.h
 
 FORMS    += widget.ui

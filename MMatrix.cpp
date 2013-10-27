@@ -126,7 +126,7 @@ MMatrix4D MMatrix4D::rotateX(double angle)
                 0,ca,-sa,0,
                 0,sa, ca,0,
                 0, 0,  0,1);
-    *this = *this*r;
+    *this = r*(*this);
     return *this;
 
 }
@@ -139,7 +139,7 @@ MMatrix4D MMatrix4D::rotateY(double angle)
                  0, 1,  0,0,
                sa,  0, ca,0,
                  0, 0,  0,1);
-    *this = *this*r;
+    *this = r*(*this);
     return *this;
 }
 
@@ -151,7 +151,7 @@ MMatrix4D MMatrix4D::rotateZ(double angle)
                 sa, ca, 0,0,
                  0,  0, 1,0,
                  0,  0, 0,1);
-    *this = *this*r;
+    *this = r*(*this);
     return *this;
 }
 
@@ -161,7 +161,7 @@ MMatrix4D MMatrix4D::transport(double X, double Y, double Z)
                 0, 1, 0, Y,
                 0, 0, 1, Z,
                 0, 0, 0, 1);
-    *this = *this*r;
+    *this = r*(*this);
     return *this;
 }
 
@@ -171,7 +171,7 @@ MMatrix4D MMatrix4D::scale(double X, double Y, double Z)
                 0, Y, 0, 0,
                 0, 0, Z, 0,
                 0, 0, 0, 1);
-    *this = *this*r;
+    *this = r*(*this);
     return *this;
 }
 
