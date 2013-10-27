@@ -42,6 +42,6 @@ public:
 
 };
 
-MVector4D calcLight(MVector4D P, MVector4D & N, MVector4D & L);
+MVector4D calcLight(MVector4D P, MVector4D & N, MVector4D L);
 
 #endif // MPOLYGON_H

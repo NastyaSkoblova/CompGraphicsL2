@@ -17,6 +17,7 @@ class Widget : public QWidget
 
 public:
     double A,B,D, mx, my;
+    double LX,LY,LZ;
     int E;
     MShape switchshape;
     bool hInvisible,C;
@@ -43,7 +44,7 @@ protected:
 private slots:
     void on_comboBox_activated(const QString &arg1);
     void on_pushButton_clicked();
-    void on_horizontalSlider_2_destroyed();
+    //void on_horizontalSlider_2_destroyed();
     void on_horizontalSlider_valueChanged(int value);
     void on_horizontalSlider_2_valueChanged(int value);
     void on_horizontalSlider_3_valueChanged(int value);
@@ -52,6 +53,9 @@ private slots:
     void on_radioButton_2_clicked(bool);
     void on_checkBox_clicked(bool checked);
     void on_checkBox_2_clicked(bool checked);
+    void on_horizontalSlider_4_valueChanged(int value);
+    void on_horizontalSlider_6_valueChanged(int value);
+    void on_horizontalSlider_5_valueChanged(int value);
 };
 
 #endif // WIDGET_H

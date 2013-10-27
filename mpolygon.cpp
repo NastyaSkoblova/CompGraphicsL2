@@ -70,7 +70,7 @@ void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor color, MVector4D &
     for(auto mp : *List) {
         Norm = ((mp.B-mp.A)^(mp.B-mp.C));
         if (Norm.z() > 0) {
-            CP = calcLight(mp.B, Norm,source);
+            CP = calcLight(mp.A, Norm,source);
             MColoredPolygon(mp,QColor(CP.x()*color.red(),
                                       CP.y()*color.green(),
                                       CP.z()*color.blue())).drawPoly(p);
@@ -99,7 +99,7 @@ void MColoredPolygon::drawPoly(QPainter &p)
 }
 
 
-MVector4D calcLight(MVector4D P, MVector4D &N, MVector4D &L){
+MVector4D calcLight(MVector4D P, MVector4D &N, MVector4D L){
     P.normalize();
     N.normalize();
     double intens = ((P-N).normalize())*((P-L).normalize());

@@ -14,6 +14,9 @@ Widget::Widget(QWidget *parent) :
     B = 60;
     D = 30;
     E = 3;
+    LX=-1000;
+    LY=-2000;
+    LZ=-3000;
     ui->horizontalSlider->setValue(A);
     ui->horizontalSlider_2->setValue(B);
     ui->horizontalSlider_3->setValue(D);
@@ -38,7 +41,7 @@ void Widget::paintEvent(QPaintEvent *)
     double hheight = height()/2;
     double hwidth = width()/2;
     double sc = (hwidth+hheight)*0.001;
-    MVector4D source(-1000,-4000,5000,1);
+    MVector4D source(LX,LY,LZ,1);
     double MPI = atan(1)*4;
     MMatrix4D TR(1,0,0,0,
                  0,1,0,0,
@@ -314,7 +317,7 @@ void Widget::on_horizontalSlider_3_valueChanged(int value)
 {
     D = value;
 }
-void Widget::on_horizontalSlider_2_destroyed(){}
+//void Widget::on_horizontalSlider_2_destroyed(){}
 
 //void Widget::on_radioButton_clicked(bool ){}
 
@@ -333,4 +336,19 @@ void Widget::on_checkBox_clicked(bool checked)
 void Widget::on_checkBox_2_clicked(bool checked)
 {
     C = checked;
+}
+
+void Widget::on_horizontalSlider_4_valueChanged(int value)
+{
+    LX = value;
+}
+
+void Widget::on_horizontalSlider_6_valueChanged(int value)
+{
+    LY = value;
+}
+
+void Widget::on_horizontalSlider_5_valueChanged(int value)
+{
+    LZ = value;
 }
