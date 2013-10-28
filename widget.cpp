@@ -9,19 +9,24 @@ Widget::Widget(QWidget *parent) :
     setMouseTracking(true);
     ui->setupUi(this);
     switchshape = Thor;
+    MPI = atan(1)*4;
     hInvisible = false;
     C = false;
     A = 100;
     B = 60;
     D = 30;
     E = 3;
-    LX=-1000;
-    LY=-2000;
-    LZ=-3000;
+    LX = -1000;
+    LY = -2000;
+    LZ = 7000;
     ui->horizontalSlider->setValue(A);
     ui->horizontalSlider_2->setValue(B);
     ui->horizontalSlider_3->setValue(D);
+    ui->horizontalSlider_4->setValue(LX);
+    ui->horizontalSlider_5->setValue(LZ);
+    ui->horizontalSlider_6->setValue(LY);
     changeVisiblyE(false);
+    changeVisiblySoL(false);
 
 }
 
@@ -43,7 +48,6 @@ void Widget::paintEvent(QPaintEvent *)
     double hwidth = width()/2;
     double sc = (hwidth+hheight)*0.001;
     MVector4D source(LX,LY,LZ,1);
-    double MPI = atan(1)*4;
     MMatrix4D TR(1,0,0,0,
                  0,1,0,0,
                  0,0,1,0,
@@ -61,8 +65,8 @@ void Widget::paintEvent(QPaintEvent *)
     Light.drawPoly(painter);
     switch (switchshape){
     case Thor:
-        for(double i = M_PI/2; i > -M_PI*3/2; i-=dt1){
-            for(double j = M_PI/2 ; j > -M_PI*3/2; j-=dt1){
+        for(double i = MPI/2, lim = -MPI*3/2; i > lim; i-=dt1){
+            for(double j = MPI/2 ; j > lim; j-=dt1){
                 OThor.pushPoly(getThor1Poly(j,i,dt1,TR));
                 OThor.pushPoly(getThor2Poly(j,i,dt1,TR));
             }
@@ -84,16 +88,16 @@ void Widget::paintEvent(QPaintEvent *)
         if (hInvisible) OSphere.hideInvisible();
         if (C) {
             OSphere.drawColoredObjWithLight(painter,QColor("Green"),source);
-            //OSphere.drawColoredObj(painter,QColor(255,0,0));
         } else {
             OSphere.drawPolyObject(painter);
         }
         break;
     case Parabaloid:
         A *= 0.1;
-        for(double j = 0, dt2 = B*0.3/D; j < B*0.3; j+=dt2){
-            for(double i = 0; i < 2*M_PI; i+=dt1){
-                OParab.pushPoly(getParabPoly(i,j,dt1,dt2,TR));
+        for(double j = 0, lim1 = B*0.3, dt2 = lim1/D; j < lim1; j+=dt2){
+            for(double i = 0, lim2 = 2*MPI; i < lim2; i+=dt1){
+                OParab.pushPoly(getParab1Poly(i,j,dt1,dt2,TR));
+                OParab.pushPoly(getParab2Poly(i,j,dt1,dt2,TR));
             }
         }
         A *= 10;
@@ -105,7 +109,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         break;
     case Prism:
-        for(double j = 0, dt = 2*M_PI/E; j < 2*M_PI; j+=dt){
+        for(double j = 0, dt = 2*MPI/E,lim = 2*MPI; j < lim; j+=dt){
             OPrism.pushPoly(getPrism1Poly(j, dt, TR));
             OPrism.pushPoly(getPrism2Poly(j, dt, TR));
             OPrism.pushPoly(getPrism3Poly(j, dt ,A, TR));
@@ -231,13 +235,23 @@ MPolygon Widget::getSphere2Poly(double a, double b, double c, const MMatrix4D &M
                     M*MVector4D(A*sac*cbc,A*sac*sbc,A*cac,1),
                     M*MVector4D(A*sac*cb,A*sac*sb,A*cac,1));
 }
-MPolygon Widget::getParabPoly(double a, double b, double c, double e, const MMatrix4D &M){
+MPolygon Widget::getParab1Poly(double a, double b, double c, double e, const MMatrix4D &M){
     double sa = sin(a);
     double ca = cos(a);
     double sac = sin(a+c);
     double cac = cos(a+c);
     return MPolygon(M*MVector4D(A*(b)*ca,A*(b)*sa,b*b,1),
                     M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
+                    M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
+}
+
+MPolygon Widget::getParab2Poly(double a, double b, double c, double e, const MMatrix4D &M){
+    double sa = sin(a);
+    double ca = cos(a);
+    double sac = sin(a+c);
+    double cac = cos(a+c);
+    return MPolygon(M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
+                    M*MVector4D(A*(b+e)*cac,A*(b+e)*sac,(b+e)*(b+e),1),
                     M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
 }
 
@@ -275,6 +289,27 @@ void Widget::changeVisiblyB(bool bl){
     } else {
         ui->label_2->hide();
         ui->horizontalSlider_2->hide();
+    }
+}
+
+void Widget::changeVisiblySoL(bool bl)
+{
+    if(bl){
+        ui->horizontalSlider_4->show();
+        ui->horizontalSlider_5->show();
+        ui->horizontalSlider_6->show();
+        ui->label_5->show();
+        ui->label_6->show();
+        ui->label_7->show();
+        ui->label_8->show();
+    } else {
+        ui->horizontalSlider_4->hide();
+        ui->horizontalSlider_5->hide();
+        ui->horizontalSlider_6->hide();
+        ui->label_5->hide();
+        ui->label_6->hide();
+        ui->label_7->hide();
+        ui->label_8->hide();
     }
 }
 
@@ -337,6 +372,7 @@ void Widget::on_checkBox_clicked(bool checked)
 void Widget::on_checkBox_2_clicked(bool checked)
 {
     C = checked;
+    changeVisiblySoL(checked);
 }
 
 void Widget::on_horizontalSlider_4_valueChanged(int value)

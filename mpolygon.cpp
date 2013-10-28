@@ -16,6 +16,10 @@ void MPolygon::drawPoly(QPainter &p)
     p.drawLine(C.x(),C.y(), A.x(),A.y());
 }
 
+bool MPolygon::operator<(const MPolygon &Elem) const
+{
+    return A.z() < Elem.A.z();
+}
 
 void MPolyObject::pushPoly(MPolygon P){
     List->push_back(P);
@@ -48,7 +52,7 @@ void MPolyObject::drowShadowObj(QPainter &p, MVector4D & source)
 
 void MPolyObject::hideInvisible() {
     for(std::list<MPolygon>::iterator i=List->begin(), j; i != List->end() ;){
-        if(  (((*i).B-(*i).A)^((*i).B-(*i).C)).z() <= 0  ){
+        if(  (((*i).B-(*i).A)^((*i).B-(*i).C)).z() < 0  ){
             j = i;
             i++;
             List->erase(j);
@@ -57,7 +61,7 @@ void MPolyObject::hideInvisible() {
     }
 }
 
-void MPolyObject::drawColoredObj(QPainter &p, QColor color)
+void MPolyObject::drawColoredObj(QPainter &p, QColor &color)
 {
     for(auto mp : *List) {
         MColoredPolygon(mp,color).drawPoly(p);
@@ -67,9 +71,10 @@ void MPolyObject::drawColoredObj(QPainter &p, QColor color)
 void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor color, MVector4D & source)
 {
     MVector4D CP, Norm;
+    List->sort();
     for(auto mp : *List) {
         Norm = ((mp.B-mp.A)^(mp.B-mp.C));
-        if (Norm.z() > 0) {
+        if (Norm.z() >= 0) {
             CP = calcLight(mp.A, Norm,source);
             MColoredPolygon(mp,QColor(CP.x()*color.red(),
                                       CP.y()*color.green(),

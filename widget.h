@@ -16,7 +16,7 @@ class Widget : public QWidget
     Q_OBJECT
 
 public:
-    double A,B,D, mx, my;
+    double A,B,D, mx, my, MPI;
     double LX,LY,LZ;
     int E;
     MShape switchshape;
@@ -29,7 +29,8 @@ public:
     MPolygon getSphere1Poly(double a, double b, double c, const MMatrix4D &M);
     MPolygon getSphere2Poly(double a, double b, double c, const MMatrix4D &M);
     void drawCoordinateSystem(QPainter &p, MMatrix4D &M);
-    MPolygon getParabPoly(double a, double b, double c, double e, const MMatrix4D &M);
+    MPolygon getParab1Poly(double a, double b, double c, double e, const MMatrix4D &M);
+    MPolygon getParab2Poly(double a, double b, double c, double e, const MMatrix4D &M);
     MPolygon getPrism1Poly(double a, double b, const MMatrix4D &M);
     MPolygon getPrism2Poly(double a, double b, const MMatrix4D &M);
     MPolygon getPrism3Poly(double a, double b, double c, const MMatrix4D &M);
@@ -37,6 +38,7 @@ public:
     void changeVisiblyE(bool bl);
     void changeVisiblyD(bool bl);
     void changeVisiblyB(bool bl);
+    void changeVisiblySoL(bool bl);
 private:
     Ui::Widget *ui;
 protected:
@@ -50,7 +52,7 @@ private slots:
     void on_horizontalSlider_3_valueChanged(int value);
     //void on_radioButton_clicked(bool);
     void on_spinBox_valueChanged(int arg1);
-    void on_radioButton_2_clicked(bool);
+    //void on_radioButton_2_clicked(bool);
     void on_checkBox_clicked(bool checked);
     void on_checkBox_2_clicked(bool checked);
     void on_horizontalSlider_4_valueChanged(int value);

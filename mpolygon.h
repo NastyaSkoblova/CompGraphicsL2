@@ -13,6 +13,7 @@ public:
     MPolygon(MVector4D A, MVector4D B, MVector4D C): A(A), B(B), C(C) {}
 
     void drawPoly(QPainter & p);
+    bool operator<(const MPolygon &Elem) const;
     friend class MPolyObject;
 };
 
@@ -36,7 +37,7 @@ public:
     void drawPolyObject(QPainter & p);
     void drowShadowObj(QPainter & p, MVector4D &source);
     void hideInvisible();
-    void drawColoredObj(QPainter & p, QColor color);
+    void drawColoredObj(QPainter & p, QColor &color);
     void drawColoredObjWithLight(QPainter & p, QColor color, MVector4D & source);
 
 
