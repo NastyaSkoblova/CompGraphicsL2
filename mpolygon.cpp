@@ -22,11 +22,11 @@ bool MPolygon::operator<(const MPolygon &Elem) const
 }
 
 void MPolyObject::pushPoly(MPolygon P){
-    List->push_back(P);
+    Vect->push_back(P);
 }
 
 void MPolyObject::drawPolyObject(QPainter &p){
-    for(auto mp : *List){
+    for(auto mp : *Vect){
         mp.drawPoly(p);
     }
 }
@@ -38,7 +38,7 @@ void MPolyObject::drowShadowObj(QPainter &p, MVector4D & source)
                  0,0,source.y(),0,
                  0,0,0,-source.z());
     M.transport(0,200,0);
-    for(auto mp : *List){
+    for(auto mp : *Vect){
         MPolygon sp(mp);
         sp.A = M*sp.A;
         sp.A.homogenization();
@@ -51,11 +51,11 @@ void MPolyObject::drowShadowObj(QPainter &p, MVector4D & source)
 }
 
 void MPolyObject::hideInvisible() {
-    for(std::list<MPolygon>::iterator i=List->begin(), j; i != List->end() ;){
+    for(std::vector<MPolygon>::iterator i=Vect->begin(), j; i != Vect->end() ;){
         if(  (((*i).B-(*i).A)^((*i).B-(*i).C)).z() < 0  ){
             j = i;
             i++;
-            List->erase(j);
+            Vect->erase(j);
         } else
             i++;
     }
@@ -63,7 +63,7 @@ void MPolyObject::hideInvisible() {
 
 void MPolyObject::drawColoredObj(QPainter &p, QColor &color)
 {
-    for(auto mp : *List) {
+    for(auto mp : *Vect) {
         MColoredPolygon(mp,color).drawPoly(p);
     }
 }
@@ -71,8 +71,8 @@ void MPolyObject::drawColoredObj(QPainter &p, QColor &color)
 void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor color, MVector4D & source)
 {
     MVector4D CP, Norm;
-    List->sort();
-    for(auto mp : *List) {
+    std::sort(Vect->begin(),Vect->end());
+    for(auto mp : *Vect) {
         Norm = ((mp.B-mp.A)^(mp.B-mp.C));
         if (Norm.z() >= 0) {
             CP = calcLight(mp.A, Norm,source);

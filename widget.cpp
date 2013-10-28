@@ -73,7 +73,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OThor.hideInvisible();
         if (C) {
-            OThor.drawColoredObjWithLight(painter,QColor("Green"),source);
+            OThor.drawColoredObjWithLight(painter,QColor(100,0,255),source);
         } else {
             OThor.drawPolyObject(painter);
         }
@@ -87,7 +87,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OSphere.hideInvisible();
         if (C) {
-            OSphere.drawColoredObjWithLight(painter,QColor("Green"),source);
+            OSphere.drawColoredObjWithLight(painter,QColor(0,0,255),source);
         } else {
             OSphere.drawPolyObject(painter);
         }

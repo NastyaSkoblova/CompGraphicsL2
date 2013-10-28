@@ -2,7 +2,7 @@
 #define MPOLYGON_H
 #include <QPainter>
 #include "MMatrix.h"
-#include <list>
+#include <vector>
 
 class MPolygon
 {
@@ -30,9 +30,9 @@ public:
 class MPolyObject
 {
 private:
-    std::list<MPolygon> *List;
+    std::vector<MPolygon> *Vect;
 public:
-    MPolyObject(): List(new std::list<MPolygon>){}
+    MPolyObject(): Vect(new std::vector<MPolygon>){}
     void pushPoly(MPolygon P);
     void drawPolyObject(QPainter & p);
     void drowShadowObj(QPainter & p, MVector4D &source);
