@@ -1,105 +1,133 @@
 #include "MMatrix.h"
-double MVector3D::x() const
+float MVector3D::x() const
 {
     return cx;
 }
 
-double MVector3D::y() const
+float MVector3D::y() const
 {
     return cy;
 }
 
-double MVector3D::z() const
+float MVector3D::z() const
 {
     return cz;
 }
 
-double MVector4D::x() const
-{
-    return cx;
+MVector4D::MVector4D(){
+    p[0] = 0;
+    p[1] = 0;
+    p[2] = 0;
+    p[3] = 0;
 }
 
-double MVector4D::y() const
+MVector4D::MVector4D(float x, float y, float z, float w)
 {
-    return cy;
+    p[0] = x;
+    p[1] = y;
+    p[2] = z;
+    p[3] = w;
 }
 
-double MVector4D::z() const
+MVector4D::MVector4D(float x, float y, float z)
 {
-    return cz;
+    p[0] = x;
+    p[1] = y;
+    p[2] = z;
+    p[3] = 0;
 }
 
-double MVector4D::w() const
+float MVector4D::x() const
 {
-    return cw;
+    return p[0];
 }
 
-void MVector4D::setX(double xx)
+float MVector4D::y() const
 {
-    cx = xx;
+    return p[1];
 }
 
-void MVector4D::setY(double yy)
+float MVector4D::z() const
 {
-    cy = yy;
+    return p[2];
 }
 
-void MVector4D::setZ(double zz)
+float MVector4D::w() const
 {
-    cz = zz;
+    return p[3];
 }
 
-void MVector4D::setW(double ww)
+void MVector4D::setX(float xx)
 {
-    cw = ww;
+    p[0] = xx;
+}
+
+void MVector4D::setY(float yy)
+{
+    p[1] = yy;
+}
+
+void MVector4D::setZ(float zz)
+{
+    p[2] = zz;
+}
+
+void MVector4D::setW(float ww)
+{
+    p[3] = ww;
 }
 
 void MVector4D::printVector(std::ostream &out) const
 {
-    out << cx << ' ' << cy << ' ' << cz << ' ' << cw << '\n';
+    out << p[0] << ' ' << p[1] << ' ' << p[2] << ' ' << p[3] << '\n';
 }
 
 MVector4D MVector4D::operator-(const MVector4D &other) const {
-    return MVector4D(cx-other.cx, cy-other.cy, cz-other.cz);
+    return MVector4D(p[0]-other.p[0], p[1]-other.p[1], p[2]-other.p[2]);
 }
 
 MVector4D MVector4D::operator^(const MVector4D &other) const
 {
-    return MVector4D((cy*other.cz-cz*other.cy),
-                     -(cx*other.cz-cz*other.cx),
-                     (cx*other.cy-cy*other.cx));
+    return MVector4D((p[1]*other.p[2]-p[2]*other.p[1]),
+                     -(p[0]*other.p[2]-p[2]*other.p[0]),
+            (p[0]*other.p[1]-p[1]*other.p[0]));
 }
 
-double MVector4D::operator*(const MVector4D &other) const
+MVector4D MVector4D::operator+(const MVector4D &other) const
 {
-    return cx*other.cx+cy*other.cy+cz*other.cz;
+    return MVector4D(p[0]+other.p[0], p[1]+other.p[1], p[2]+other.p[2]);
+}
+
+float MVector4D::operator*(const MVector4D &other) const
+{
+    return p[0]*other.p[0]+p[1]*other.p[1]+p[2]*other.p[2];
 }
 
 void MVector4D::homogenization(){
-    cx = cx/cw;
-    cy = cy/cw;
-    cz = cz/cw;
-    cw = 1;
+    p[0] = p[0]/p[3];
+    p[1] = p[1]/p[3];
+    p[2] = p[2]/p[3];
+    p[3] = 1;
 }
 
-double MVector4D::abs()
+float MVector4D::abs()
 {
-    return sqrt(cx*cx+cy*cy+cz*cz);
+    return sqrt(p[0]*p[0]+p[1]*p[1]+p[2]*p[2]);
 }
 
 MVector4D MVector4D::normalize()
 {
-    double l = abs();
-    cx = cx/l;
-    cy = cy/l;
-    cz = cz/l;
+    float l = abs();
+    p[0] = p[0]/l;
+    p[1] = p[1]/l;
+    p[2] = p[2]/l;
     return *this;
 }
 
 
-MMatrix3D::MMatrix3D(double a11, double a12, double a13,
-                     double a21, double a22, double a23,
-                     double a31, double a32, double a33)
+MMatrix3D::MMatrix3D(float a11, float a12, float a13,
+                     float a21, float a22, float a23,
+                     float a31, float a32, float a33)
 {
     m[0][0] = a11; m[0][1] = a12; m[0][2] = a13;
     m[1][0] = a21; m[1][1] = a22; m[1][2] = a23;
@@ -143,10 +171,10 @@ MMatrix4D::MMatrix4D()
     m[3][0] = 0; m[3][1] = 0; m[3][2] = 0; m[3][3] = 0;
 }
 
-MMatrix4D::MMatrix4D(double a11, double a12, double a13, double a14,
-                     double a21, double a22, double a23, double a24,
-                     double a31, double a32, double a33, double a34,
-                     double a41, double a42, double a43, double a44)
+MMatrix4D::MMatrix4D(float a11, float a12, float a13, float a14,
+                     float a21, float a22, float a23, float a24,
+                     float a31, float a32, float a33, float a34,
+                     float a41, float a42, float a43, float a44)
 {
     m[0][0] = a11; m[0][1] = a12; m[0][2] = a13; m[0][3] = a14;
     m[1][0] = a21; m[1][1] = a22; m[1][2] = a23; m[1][3] = a24;
@@ -175,10 +203,10 @@ MVector4D MMatrix4D::operator*(const MVector4D &v) const
                      m[3][0]*v.x()+m[3][1]*v.y()+m[3][2]*v.z()+m[3][3]*v.w());
 }
 
-MMatrix4D MMatrix4D::rotateX(double angle)
+MMatrix4D MMatrix4D::rotateX(float angle)
 {
-    double ca = cos(angle);
-    double sa = sin(angle);
+    float ca = cos(angle);
+    float sa = sin(angle);
     MMatrix4D r(1, 0,  0,0,
                 0,ca,-sa,0,
                 0,sa, ca,0,
@@ -188,10 +216,10 @@ MMatrix4D MMatrix4D::rotateX(double angle)
 
 }
 
-MMatrix4D MMatrix4D::rotateY(double angle)
+MMatrix4D MMatrix4D::rotateY(float angle)
 {
-    double ca = cos(angle);
-    double sa = sin(angle);
+    float ca = cos(angle);
+    float sa = sin(angle);
     MMatrix4D r(ca, 0,-sa,0,
                  0, 1,  0,0,
                sa,  0, ca,0,
@@ -200,10 +228,10 @@ MMatrix4D MMatrix4D::rotateY(double angle)
     return *this;
 }
 
-MMatrix4D MMatrix4D::rotateZ(double angle)
+MMatrix4D MMatrix4D::rotateZ(float angle)
 {
-    double ca = cos(angle);
-    double sa = sin(angle);
+    float ca = cos(angle);
+    float sa = sin(angle);
     MMatrix4D r(ca,-sa, 0,0,
                 sa, ca, 0,0,
                  0,  0, 1,0,
@@ -212,7 +240,7 @@ MMatrix4D MMatrix4D::rotateZ(double angle)
     return *this;
 }
 
-MMatrix4D MMatrix4D::transport(double X, double Y, double Z)
+MMatrix4D MMatrix4D::transport(float X, float Y, float Z)
 {
     MMatrix4D r(1, 0, 0, X,
                 0, 1, 0, Y,
@@ -222,7 +250,7 @@ MMatrix4D MMatrix4D::transport(double X, double Y, double Z)
     return *this;
 }
 
-MMatrix4D MMatrix4D::scale(double X, double Y, double Z)
+MMatrix4D MMatrix4D::scale(float X, float Y, float Z)
 {
     MMatrix4D r(X, 0, 0, 0,
                 0, Y, 0, 0,
@@ -257,3 +285,5 @@ std::ostream &operator <<(std::ostream &out, const MVector4D &obj)
     obj.printVector(out);
     return out;
 }
+
+

@@ -2,7 +2,9 @@
 #define MPOLYGON_H
 #include <QPainter>
 #include "MMatrix.h"
-#include <vector>
+#include <list>
+
+enum MLight{CookTorrance, Standart};
 
 class MPolygon
 {
@@ -13,6 +15,8 @@ public:
     MPolygon(MVector4D A, MVector4D B, MVector4D C): A(A), B(B), C(C) {}
 
     void drawPoly(QPainter & p);
+    MPolygon operator*(MMatrix4D & M) const;
+
     bool operator<(const MPolygon &Elem) const;
     friend class MPolyObject;
 };
@@ -30,19 +34,20 @@ public:
 class MPolyObject
 {
 private:
-    std::vector<MPolygon> *Vect;
+    std::list<MPolygon> *Plist;
 public:
-    MPolyObject(): Vect(new std::vector<MPolygon>){}
+    MPolyObject(): Plist(new std::list<MPolygon>){}
     void pushPoly(MPolygon P);
     void drawPolyObject(QPainter & p);
-    void drowShadowObj(QPainter & p, MVector4D &source);
+    void drawShadowObj(QPainter & p, MVector4D &source);
     void hideInvisible();
     void drawColoredObj(QPainter & p, QColor &color);
-    void drawColoredObjWithLight(QPainter & p, QColor color, MVector4D & source);
+    void drawColoredObjWithLight(QPainter & p, QColor color, MVector4D & source, MLight model);
 
 
 };
 
-MVector4D calcLight(MVector4D P, MVector4D & N, MVector4D L);
-
+float calcLight(MVector4D P, MVector4D & N, MVector4D L);
+float fresnel(float cosVN, float a);
+float calcLightCookTorrance(MVector4D Norm, MVector4D source, MVector4D PoV, float fresnel, float roughness);
 #endif // MPOLYGON_H

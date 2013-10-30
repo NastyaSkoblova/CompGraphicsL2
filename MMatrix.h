@@ -7,59 +7,57 @@
 class MVector3D
 {
 private:
-    double cx;
-    double cy;
-    double cz;
+    float cx;
+    float cy;
+    float cz;
 
 public:
     MVector3D(): cx(0), cy(0), cz(0){}
-    MVector3D(double x, double y, double z): cx(x), cy(y), cz(z){}
+    MVector3D(float x, float y, float z): cx(x), cy(y), cz(z){}
 
-    double x() const;
-    double y() const;
-    double z() const;
+    float x() const;
+    float y() const;
+    float z() const;
 };
 
 class MVector4D
 {
 private:
-    double cx;
-    double cy;
-    double cz;
-    double cw;
+    float p[4];
 
 public:
-    MVector4D(): cx(0), cy(0), cz(0), cw(0) {}
-    MVector4D(double x, double y, double z, double w): cx(x), cy(y), cz(z), cw(w){}
-    MVector4D(double x, double y, double z): cx(x), cy(y), cz(z), cw(0){}
+    MVector4D();
+    MVector4D(float x, float y, float z, float w);
+    MVector4D(float x, float y, float z);
 
-    double x() const;
-    double y() const;
-    double z() const;
-    double w() const;
-    void setX(double xx);
-    void setY(double yy);
-    void setZ(double zz);
-    void setW(double ww);
+    float x() const;
+    float y() const;
+    float z() const;
+    float w() const;
+    void setX(float xx);
+    void setY(float yy);
+    void setZ(float zz);
+    void setW(float ww);
     void printVector(std::ostream & out) const;
     MVector4D operator-(const MVector4D & other) const;
     MVector4D operator^(const MVector4D & other) const;
-    double operator*(const MVector4D & other) const;
+    MVector4D operator+(const MVector4D & other) const;
+    float operator*(const MVector4D & other) const;
     void homogenization();
     MVector4D normalize();
-    double abs();
+    float abs();
 };
 
 class MMatrix3D
 {
 private:
-    double m[3][3];
+    float m[3][3];
 
 public:
 
-    MMatrix3D(double a11, double a12, double a13,
-              double a21, double a22, double a23,
-              double a31, double a32, double a33);
+    MMatrix3D(float a11, float a12, float a13,
+              float a21, float a22, float a23,
+              float a31, float a32, float a33);
     MMatrix3D();
 
     MMatrix3D operator*(const MMatrix3D & other) const;
@@ -71,24 +69,24 @@ public:
 class MMatrix4D
 {
 private:
-    double m[4][4];
+    float m[4][4];
 
 public:
 
     MMatrix4D();
-    MMatrix4D(double a11, double a12, double a13, double a14,
-              double a21, double a22, double a23, double a24,
-              double a31, double a32, double a33, double a34,
-              double a41, double a42, double a43, double a44);
+    MMatrix4D(float a11, float a12, float a13, float a14,
+              float a21, float a22, float a23, float a24,
+              float a31, float a32, float a33, float a34,
+              float a41, float a42, float a43, float a44);
 
     MMatrix4D operator*(const MMatrix4D & other) const;
     MVector4D operator*(const MVector4D & vect) const;
 
-    MMatrix4D rotateX(double angle);
-    MMatrix4D rotateY(double angle);
-    MMatrix4D rotateZ(double angle);
-    MMatrix4D transport(double X, double Y, double Z);
-    MMatrix4D scale(double X, double Y, double Z);
+    MMatrix4D rotateX(float angle);
+    MMatrix4D rotateY(float angle);
+    MMatrix4D rotateZ(float angle);
+    MMatrix4D transport(float X, float Y, float Z);
+    MMatrix4D scale(float X, float Y, float Z);
 
     void printMatrix(std::ostream & out) const;
 };

@@ -1,6 +1,7 @@
 #include "widget.h"
 #include "ui_widget.h"
 #include <QPainter>
+#define sqr(x) (x*x)
 
 Widget::Widget(QWidget *parent) :
     QWidget(parent),
@@ -9,6 +10,7 @@ Widget::Widget(QWidget *parent) :
     setMouseTracking(true);
     ui->setupUi(this);
     switchshape = Thor;
+    model = Standart;
     MPI = atan(1)*4;
     hInvisible = false;
     C = false;
@@ -44,9 +46,9 @@ void Widget::mouseMoveEvent(QMouseEvent *e)
 void Widget::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    double hheight = height()/2;
-    double hwidth = width()/2;
-    double sc = (hwidth+hheight)*0.001;
+    float hheight = height()/2;
+    float hwidth = width()/2;
+    float sc = (hwidth+hheight)*0.001;
     MVector4D source(LX,LY,LZ,1);
     MMatrix4D TR(1,0,0,0,
                  0,1,0,0,
@@ -56,8 +58,8 @@ void Widget::paintEvent(QPaintEvent *)
     TR.rotateY((mx-hwidth)*0.0033);
     TR.scale(sc, sc,1);
     TR.transport(hwidth,hheight,0);
-    double dt1 = 2*M_PI/D;
-    MPolyObject OThor,OPrism,OSphere,OParab;
+    float dt1 = 2*M_PI/(D+20);
+    MPolyObject OThor,OPrism,OSphere,OParab, OSWatch;
     MColoredPolygon Light(source,
                           MVector4D(source.x()+10,source.y(),source.z(),1),
                           MVector4D(source.x(),source.y()+10,source.z(),1), QColor("White"));
@@ -65,37 +67,38 @@ void Widget::paintEvent(QPaintEvent *)
     Light.drawPoly(painter);
     switch (switchshape){
     case Thor:
-        for(double i = MPI/2, lim = -MPI*3/2; i > lim; i-=dt1){
-            for(double j = MPI/2 ; j > lim; j-=dt1){
+        for(float i = MPI/2, lim = -MPI*3/2; i > lim; i-=dt1){
+            for(float j = MPI/2 ; j > lim; j-=dt1){
                 OThor.pushPoly(getThor1Poly(j,i,dt1,TR));
                 OThor.pushPoly(getThor2Poly(j,i,dt1,TR));
             }
         }
+        //OThor.drawShadowObj(painter,source);
         if (hInvisible) OThor.hideInvisible();
         if (C) {
-            OThor.drawColoredObjWithLight(painter,QColor(100,0,255),source);
+            OThor.drawColoredObjWithLight(painter,QColor(0,255,255),source, model);
         } else {
             OThor.drawPolyObject(painter);
         }
         break;
     case Sphere:
-        for(double i = -MPI; i < MPI; i+=dt1){
-            for(double j = MPI; j > 0; j-=dt1){
+        for(float i = -MPI; i < MPI; i+=dt1){
+            for(float j = MPI; j > 0; j-=dt1){
                 OSphere.pushPoly(getSphere1Poly(j,i,dt1,TR));
                 OSphere.pushPoly(getSphere2Poly(j,i,dt1,TR));
             }
         }
         if (hInvisible) OSphere.hideInvisible();
         if (C) {
-            OSphere.drawColoredObjWithLight(painter,QColor(0,0,255),source);
+            OSphere.drawColoredObjWithLight(painter,QColor(255,255,255),source, model);
         } else {
             OSphere.drawPolyObject(painter);
         }
         break;
     case Parabaloid:
         A *= 0.1;
-        for(double j = 0, lim1 = B*0.3, dt2 = lim1/D; j < lim1; j+=dt2){
-            for(double i = 0, lim2 = 2*MPI; i < lim2; i+=dt1){
+        for(float j = 0, lim1 = B*0.3, dt2 = lim1/D; j < lim1; j+=dt2){
+            for(float i = 0, lim2 = 2*MPI; i < lim2; i+=dt1){
                 OParab.pushPoly(getParab1Poly(i,j,dt1,dt2,TR));
                 OParab.pushPoly(getParab2Poly(i,j,dt1,dt2,TR));
             }
@@ -103,13 +106,13 @@ void Widget::paintEvent(QPaintEvent *)
         A *= 10;
         if (hInvisible) OParab.hideInvisible();
         if (C) {
-            OParab.drawColoredObjWithLight(painter,QColor("Green"),source);
+            OParab.drawColoredObjWithLight(painter,QColor("Green"),source, model);
         } else {
             OParab.drawPolyObject(painter);
         }
         break;
     case Prism:
-        for(double j = 0, dt = 2*MPI/E,lim = 2*MPI; j < lim; j+=dt){
+        for(float j = 0, dt = 2*MPI/E,lim = 2*MPI; j < lim; j+=dt){
             OPrism.pushPoly(getPrism1Poly(j, dt, TR));
             OPrism.pushPoly(getPrism2Poly(j, dt, TR));
             OPrism.pushPoly(getPrism3Poly(j, dt ,A, TR));
@@ -117,10 +120,18 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OPrism.hideInvisible();
         if (C) {
-            OPrism.drawColoredObjWithLight(painter,QColor("Green"),source);
+            OPrism.drawColoredObjWithLight(painter,QColor("Green"),source, model);
         } else {
             OPrism.drawPolyObject(painter);
         }
+        break;
+     case SWatch:
+        for(float i = 0; i < 2*MPI; i+=dt1 ){
+            for(float j = 0; j < 100; j+=100/D ){
+                OSWatch.pushPoly(MPolygon(getSWatchPoly(i,j,dt1,TR)));
+            }
+        }
+        OSWatch.drawPolyObject(painter);
 
     }
 
@@ -145,111 +156,116 @@ void Widget::drawCoordinateSystem(QPainter &p, MMatrix4D & M){
     p.setPen(QColor(0,0,0));
 
 }
+MPolygon Widget::getSWatchPoly(float a,float b, float c, const MMatrix4D &M){
+    return MPolygon(M*MVector4D(A*cos(a+b),b,A*sin(a+b),1),
+                    M*MVector4D(A*cos(a+c+b),b,A*sin(a+b),1),
+                    M*MVector4D(A*cos(a+b),b,A*sin(a+c+b),1));
+}
 
-MPolygon Widget::getPrism1Poly(double a,double b, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sab = sin(a+b);
-    double cab = cos(a+b);
+MPolygon Widget::getPrism1Poly(float a,float b, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sab = sin(a+b);
+    float cab = cos(a+b);
     return MPolygon(M*MVector4D(B*ca,A,B*sa,1),
                     M*MVector4D(B*ca,-A,B*sa,1),
                     M*MVector4D(B*cab,-A,B*sab,1));
 }
-MPolygon Widget::getPrism2Poly(double a,double b, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sab = sin(a+b);
-    double cab = cos(a+b);
+MPolygon Widget::getPrism2Poly(float a,float b, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sab = sin(a+b);
+    float cab = cos(a+b);
     return MPolygon(M*MVector4D(B*ca,A,B*sa,1),
                     M*MVector4D(B*cab,-A,B*sab,1),
                     M*MVector4D(B*cab,A,B*sab,1));
 }
-MPolygon Widget::getPrism3Poly(double a,double b, double c,const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sab = sin(a+b);
-    double cab = cos(a+b);
+MPolygon Widget::getPrism3Poly(float a,float b, float c,const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sab = sin(a+b);
+    float cab = cos(a+b);
     return MPolygon(M*MVector4D(B*cab,c,B*sab,1),
                     M*MVector4D(0,c,0,1),
                     M*MVector4D(B*ca,c,B*sa,1));
 }
-MPolygon Widget::getPrism4Poly(double a,double b, double c,const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sab = sin(a+b);
-    double cab = cos(a+b);
+MPolygon Widget::getPrism4Poly(float a,float b, float c,const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sab = sin(a+b);
+    float cab = cos(a+b);
     return MPolygon(M*MVector4D(B*ca,c,B*sa,1),
                     M*MVector4D(0,c,0,1),
                     M*MVector4D(B*cab,c,B*sab,1));
 }
-MPolygon Widget::getThor1Poly(double a, double b, double c, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
-    double sb = sin(b);
-    double cb = cos(b);
-    double sbc = sin(b+c);
-    double cbc = cos(b+c);
+MPolygon Widget::getThor1Poly(float a, float b, float c, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
     return MPolygon(M*MVector4D((A+B* ca)*cb,(A+B*ca)*sb,B*sa,1),
                     M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
                     M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
 }
-MPolygon Widget::getThor2Poly(double a, double b, double c, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
-    double sb = sin(b);
-    double cb = cos(b);
-    double sbc = sin(b+c);
-    double cbc = cos(b+c);
+MPolygon Widget::getThor2Poly(float a, float b, float c, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
     return MPolygon(M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
                     M*MVector4D((A+B* cac)*cbc,(A+B*cac)*sbc,B*sac,1),
                     M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
 }
 
-MPolygon Widget::getSphere1Poly(double a, double b, double c, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
-    double sb = sin(b);
-    double cb = cos(b);
-    double sbc = sin(b+c);
-    double cbc = cos(b+c);
+MPolygon Widget::getSphere1Poly(float a, float b, float c, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
     return MPolygon(M*MVector4D(A*sa*cb,A*sa*sb,A*ca,1),
                     M*MVector4D(A*sa*cbc,A*sa*sbc,A*ca,1),
                     M*MVector4D(A*sac*cb,A*sac*sb,A*cac,1));
 }
-MPolygon Widget::getSphere2Poly(double a, double b, double c, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
-    double sb = sin(b);
-    double cb = cos(b);
-    double sbc = sin(b+c);
-    double cbc = cos(b+c);
+MPolygon Widget::getSphere2Poly(float a, float b, float c, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
     return MPolygon(M*MVector4D(A*sa*cbc,A*sa*sbc,A*ca,1),
                     M*MVector4D(A*sac*cbc,A*sac*sbc,A*cac,1),
                     M*MVector4D(A*sac*cb,A*sac*sb,A*cac,1));
 }
-MPolygon Widget::getParab1Poly(double a, double b, double c, double e, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
+MPolygon Widget::getParab1Poly(float a, float b, float c, float e, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
     return MPolygon(M*MVector4D(A*(b)*ca,A*(b)*sa,b*b,1),
                     M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
                     M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
 }
 
-MPolygon Widget::getParab2Poly(double a, double b, double c, double e, const MMatrix4D &M){
-    double sa = sin(a);
-    double ca = cos(a);
-    double sac = sin(a+c);
-    double cac = cos(a+c);
+MPolygon Widget::getParab2Poly(float a, float b, float c, float e, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
     return MPolygon(M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
                     M*MVector4D(A*(b+e)*cac,A*(b+e)*sac,(b+e)*(b+e),1),
                     M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
@@ -278,6 +294,8 @@ void Widget::on_comboBox_activated(const QString &arg1)
         changeVisiblyB(true);
         changeVisiblyD(false);
         changeVisiblyE(true);
+    }else if(arg1 == "Sand Watch"){
+        switchshape = SWatch;
     }
     update();
 }
@@ -298,18 +316,22 @@ void Widget::changeVisiblySoL(bool bl)
         ui->horizontalSlider_4->show();
         ui->horizontalSlider_5->show();
         ui->horizontalSlider_6->show();
+        ui->comboBox_2->show();
         ui->label_5->show();
         ui->label_6->show();
         ui->label_7->show();
         ui->label_8->show();
+        ui->label_9->show();
     } else {
         ui->horizontalSlider_4->hide();
         ui->horizontalSlider_5->hide();
         ui->horizontalSlider_6->hide();
+        ui->comboBox_2->hide();
         ui->label_5->hide();
         ui->label_6->hide();
         ui->label_7->hide();
         ui->label_8->hide();
+        ui->label_9->hide();
     }
 }
 
@@ -388,4 +410,13 @@ void Widget::on_horizontalSlider_6_valueChanged(int value)
 void Widget::on_horizontalSlider_5_valueChanged(int value)
 {
     LZ = value;
+}
+
+void Widget::on_comboBox_2_activated(const QString &arg1)
+{
+    if (arg1 == "CookTorrance"){
+        model = CookTorrance;
+    } else if (arg1 == "Standart") {
+        model = Standart;
+    }
 }
