@@ -36,11 +36,13 @@ public:
     MPolygon getPrism2Poly(float a, float b, const MMatrix4D &M);
     MPolygon getPrism3Poly(float a, float b, float c, const MMatrix4D &M);
     MPolygon getPrism4Poly(float a, float b, float c, const MMatrix4D &M);
+    MPolygon getSWatch1Poly(float a, float b, float c, const MMatrix4D &M);
+    MPolygon getSWatch2Poly(float a, float b, float c, const MMatrix4D &M);
     void changeVisiblyE(bool bl);
     void changeVisiblyD(bool bl);
     void changeVisiblyB(bool bl);
     void changeVisiblySoL(bool bl);
-    MPolygon getSWatchPoly(float a, float b, float c, const MMatrix4D &M);
+
 private:
     Ui::Widget *ui;
 protected:
@@ -48,13 +50,10 @@ protected:
 private slots:
     void on_comboBox_activated(const QString &arg1);
     void on_pushButton_clicked();
-    //void on_horizontalSlider_2_destroyed();
     void on_horizontalSlider_valueChanged(int value);
     void on_horizontalSlider_2_valueChanged(int value);
     void on_horizontalSlider_3_valueChanged(int value);
-    //void on_radioButton_clicked(bool);
     void on_spinBox_valueChanged(int arg1);
-    //void on_radioButton_2_clicked(bool);
     void on_checkBox_clicked(bool checked);
     void on_checkBox_2_clicked(bool checked);
     void on_horizontalSlider_4_valueChanged(int value);

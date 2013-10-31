@@ -2,7 +2,7 @@
 #include "MMatrix.h"
 #define min(x,y) ((x<y) ? x: y)
 #define max(x,y) ((x>y) ? x: y)
-
+#define sqr(x) (x*x)
 
 MPolygon::MPolygon()
 {
@@ -25,7 +25,7 @@ MPolygon MPolygon::operator*(MMatrix4D &M) const{
 
 bool MPolygon::operator<(const MPolygon &Elem) const
 {
-    return A.z() < Elem.A.z();
+    return abs(A.z()) < abs(Elem.A.z());
 }
 
 void MPolyObject::pushPoly(MPolygon P){
@@ -126,7 +126,7 @@ void MColoredPolygon::drawPoly(QPainter &p)
 
 float calcLight(MVector4D P, MVector4D &N, MVector4D L){
     P.normalize();
-    N.normalize();
+    //N.normalize();
     float intens = ((P-N).normalize())*((P-L).normalize());
     //std::cout << P-N << std::endl;
     return (intens < 0) ? 0 : intens;

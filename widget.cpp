@@ -120,18 +120,27 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OPrism.hideInvisible();
         if (C) {
-            OPrism.drawColoredObjWithLight(painter,QColor("Green"),source, model);
+            OPrism.drawColoredObjWithLight(painter,QColor(200,100,255),source, model);
         } else {
             OPrism.drawPolyObject(painter);
         }
         break;
      case SWatch:
-        for(float i = 0; i < 2*MPI; i+=dt1 ){
-            for(float j = 0; j < 100; j+=100/D ){
-                OSWatch.pushPoly(MPolygon(getSWatchPoly(i,j,dt1,TR)));
+        A*=3;
+        for(float i = 0, lim = 2*MPI; i < lim; i+=dt1 ){
+            for(float j = 0; j < lim; j+=dt1 ){
+                OSWatch.pushPoly(MPolygon(getSWatch1Poly(i,j,dt1,TR)));
+                OSWatch.pushPoly(MPolygon(getSWatch2Poly(i,j,dt1,TR)));
             }
         }
-        OSWatch.drawPolyObject(painter);
+        if (hInvisible) OSWatch.hideInvisible();
+        if (C) {
+            OSWatch.drawColoredObjWithLight(painter,QColor(255,255,0),source, model);
+        } else {
+            OSWatch.drawPolyObject(painter);
+        }
+        A/=3;
+
 
     }
 
@@ -156,10 +165,33 @@ void Widget::drawCoordinateSystem(QPainter &p, MMatrix4D & M){
     p.setPen(QColor(0,0,0));
 
 }
-MPolygon Widget::getSWatchPoly(float a,float b, float c, const MMatrix4D &M){
-    return MPolygon(M*MVector4D(A*cos(a+b),b,A*sin(a+b),1),
-                    M*MVector4D(A*cos(a+c+b),b,A*sin(a+b),1),
-                    M*MVector4D(A*cos(a+b),b,A*sin(a+c+b),1));
+MPolygon Widget::getSWatch1Poly(float a,float b, float c, const MMatrix4D &M){
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
+    return MPolygon(M*MVector4D(A*ca*sb*sa,A*sa*sb,A*cb*sb*sa,1),
+                    M*MVector4D(A*ca*sbc*sa,A*sa*sbc,A*cbc*sbc*sa,1),
+                    M*MVector4D(A*cac*sb*sac,A*sac*sb,A*cb*sb*sac,1));
+}
+
+MPolygon Widget::getSWatch2Poly(float a, float b, float c, const MMatrix4D &M)
+{
+    float sa = sin(a);
+    float ca = cos(a);
+    float sac = sin(a+c);
+    float cac = cos(a+c);
+    float sb = sin(b);
+    float cb = cos(b);
+    float sbc = sin(b+c);
+    float cbc = cos(b+c);
+    return MPolygon(M*MVector4D(A*ca*sbc*sa,A*sa*sbc,A*cbc*sbc*sa,1),
+                    M*MVector4D(A*cac*sbc*sac,A*sac*sbc,A*cbc*sbc*sac,1),
+                    M*MVector4D(A*cac*sb*sac,A*sac*sb,A*cb*sb*sac,1));
 }
 
 MPolygon Widget::getPrism1Poly(float a,float b, const MMatrix4D &M){
@@ -207,7 +239,7 @@ MPolygon Widget::getThor1Poly(float a, float b, float c, const MMatrix4D &M){
     float cb = cos(b);
     float sbc = sin(b+c);
     float cbc = cos(b+c);
-    return MPolygon(M*MVector4D((A+B* ca)*cb,(A+B*ca)*sb,B*sa,1),
+    return MPolygon(M*MVector4D((A+B*ca)*cb,(A+B*ca)*sb,B*sa,1),
                     M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
                     M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
 }
@@ -221,7 +253,7 @@ MPolygon Widget::getThor2Poly(float a, float b, float c, const MMatrix4D &M){
     float sbc = sin(b+c);
     float cbc = cos(b+c);
     return MPolygon(M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
-                    M*MVector4D((A+B* cac)*cbc,(A+B*cac)*sbc,B*sac,1),
+                    M*MVector4D((A+B*cac)*cbc,(A+B*cac)*sbc,B*sac,1),
                     M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
 }
 
@@ -296,6 +328,9 @@ void Widget::on_comboBox_activated(const QString &arg1)
         changeVisiblyE(true);
     }else if(arg1 == "Sand Watch"){
         switchshape = SWatch;
+        changeVisiblyB(false);
+        changeVisiblyD(true);
+        changeVisiblyE(false);
     }
     update();
 }
