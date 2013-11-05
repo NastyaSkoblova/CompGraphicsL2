@@ -49,6 +49,9 @@ void Widget::paintEvent(QPaintEvent *)
     float hheight = height()/2;
     float hwidth = width()/2;
     float sc = (hwidth+hheight)*0.001;
+    QColor colorA(ui->spinBox_2->value(),ui->spinBox_3->value(),ui->spinBox_4->value());
+    QColor colorD(ui->spinBox_5->value(),ui->spinBox_6->value(),ui->spinBox_7->value());
+    QColor colorS(ui->spinBox_8->value(),ui->spinBox_9->value(),ui->spinBox_10->value());
     MVector4D source(LX,LY,LZ,1);
     MMatrix4D TR(1,0,0,0,
                  0,1,0,0,
@@ -58,7 +61,7 @@ void Widget::paintEvent(QPaintEvent *)
     TR.rotateY((mx-hwidth)*0.0033);
     TR.scale(sc, sc,1);
     TR.transport(hwidth,hheight,0);
-    float dt1 = 2*M_PI/(D+20);
+    float dt1 = 2*M_PI/(D);
     MPolyObject OThor,OPrism,OSphere,OParab, OSWatch;
     MColoredPolygon Light(source,
                           MVector4D(source.x()+10,source.y(),source.z(),1),
@@ -76,21 +79,21 @@ void Widget::paintEvent(QPaintEvent *)
         //OThor.drawShadowObj(painter,source);
         if (hInvisible) OThor.hideInvisible();
         if (C) {
-            OThor.drawColoredObjWithLight(painter,QColor(0,255,255),source, model);
+            OThor.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
         } else {
             OThor.drawPolyObject(painter);
         }
         break;
     case Sphere:
-        for(float i = -MPI; i < MPI; i+=dt1){
-            for(float j = MPI; j > 0; j-=dt1){
+        for(float i = -MPI; i < MPI+0.00001; i+=dt1){
+            for(float j = MPI; j > -0.00001; j-=dt1){
                 OSphere.pushPoly(getSphere1Poly(j,i,dt1,TR));
                 OSphere.pushPoly(getSphere2Poly(j,i,dt1,TR));
             }
         }
         if (hInvisible) OSphere.hideInvisible();
         if (C) {
-            OSphere.drawColoredObjWithLight(painter,QColor(255,255,255),source, model);
+            OSphere.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
         } else {
             OSphere.drawPolyObject(painter);
         }
@@ -106,7 +109,7 @@ void Widget::paintEvent(QPaintEvent *)
         A *= 10;
         if (hInvisible) OParab.hideInvisible();
         if (C) {
-            OParab.drawColoredObjWithLight(painter,QColor("Green"),source, model);
+            OParab.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
         } else {
             OParab.drawPolyObject(painter);
         }
@@ -120,7 +123,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OPrism.hideInvisible();
         if (C) {
-            OPrism.drawColoredObjWithLight(painter,QColor(200,100,255),source, model);
+            OPrism.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
         } else {
             OPrism.drawPolyObject(painter);
         }
@@ -135,7 +138,7 @@ void Widget::paintEvent(QPaintEvent *)
         }
         if (hInvisible) OSWatch.hideInvisible();
         if (C) {
-            OSWatch.drawColoredObjWithLight(painter,QColor(255,255,0),source, model);
+            OSWatch.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
         } else {
             OSWatch.drawPolyObject(painter);
         }

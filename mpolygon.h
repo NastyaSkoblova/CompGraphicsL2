@@ -42,11 +42,12 @@ public:
     void drawShadowObj(QPainter & p, MVector4D &source);
     void hideInvisible();
     void drawColoredObj(QPainter & p, QColor &color);
-    void drawColoredObjWithLight(QPainter & p, QColor color, MVector4D & source, MLight model);
+    void drawColoredObjWithLight(QPainter & p, QColor colorA,QColor colorD,QColor colorS, MVector4D & source, MLight model, float, float);
 
 
 };
 
+MVector4D calcBlinFond(QColor color, QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm, float alph);
 float calcLight(MVector4D P, MVector4D & N, MVector4D L);
 float fresnel(float cosVN, float a);
 float calcLightCookTorrance(MVector4D Norm, MVector4D source, MVector4D PoV, float fresnel, float roughness);

@@ -83,22 +83,27 @@ void MPolyObject::drawColoredObj(QPainter &p, QColor &color)
     }
 }
 
-void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor color, MVector4D & source, MLight model)
+void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor colorA, QColor colorD, QColor colorS, MVector4D & source, MLight model, float alph, float bet)
 {
-    MVector4D Norm, PoV(500,-540,5000,1);
+    MVector4D Norm, PoV(500,-540,5000,1),CL;
     float CP;
     //std::sort(Vect->begin(),Vect->end());
     Plist->sort();
     for(auto mp : *Plist) {
         Norm = ((mp.B-mp.A)^(mp.B-mp.C)).normalize();
         if (Norm.z() >= 0) {
-            if(model == Standart)
-                CP = calcLight(mp.A, Norm,source);
-            else if (model == CookTorrance)
-                CP = calcLightCookTorrance(Norm,source,PoV,fresnel((mp.B-PoV).normalize()*Norm,0.8),0.999);
-            MColoredPolygon(mp,QColor(CP*color.red(),
-                                      CP*color.green(),
-                                      CP*color.blue())).drawPoly(p);
+            if(model == Standart) {
+                //MVector4D calcBlinFond(QColor color, MVector4D source, MVector4D PoV, MVector4D Norm,float alph)
+                CL = calcBlinFond(colorA,colorD,colorS,source,PoV,Norm,bet);
+                MColoredPolygon(mp,QColor(CL.x(),
+                                          CL.y(),
+                                          CL.z())).drawPoly(p);
+            } else if (model == CookTorrance) {
+                CP = calcLightCookTorrance(Norm,source,PoV,fresnel((mp.B-PoV).normalize()*Norm,alph),bet);
+                MColoredPolygon(mp,QColor(CP*colorA.red(),
+                                          CP*colorA.green(),
+                                          CP*colorA.blue())).drawPoly(p);
+            }
         }
     }
 }
@@ -152,6 +157,17 @@ float calcLightCookTorrance(MVector4D Norm, MVector4D source, MVector4D PoV, flo
     float nroughness = 0.25 * exp(roughness_exp) * NdH_sq_r / NdH_sq;
 
     return min(1.0, fresnel * geom * nroughness / (NdV + 1.0e-7));
+}
+MVector4D calcBlinFond(QColor colorA,QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm,float alph){
+    PoV.normalize();
+    source.normalize();
+
+    MVector4D H = (PoV+source).normalize();
+    float NL = Norm*source;
+    float powNH = pow(Norm*H,30);
+    return MVector4D(min(colorA.red()+colorD.red()*max(NL,0)+colorS.red()*max(0,powNH),255),
+                     min(colorA.green()+colorD.green()*max(NL,0)+colorS.green()*max(0,powNH),255),
+                     min(colorA.blue()+colorD.blue()*max(NL,0)+colorS.blue()*max(0,powNH),255),1);
 }
 
 float fresnel(float cosVN, float a){
