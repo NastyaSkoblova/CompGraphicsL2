@@ -92,9 +92,8 @@ void MPolyObject::drawColoredObjWithLight(QPainter &p, QColor colorA, QColor col
     for(auto mp : *Plist) {
         Norm = ((mp.B-mp.A)^(mp.B-mp.C)).normalize();
         if (Norm.z() >= 0) {
-            if(model == Standart) {
-                //MVector4D calcBlinFond(QColor color, MVector4D source, MVector4D PoV, MVector4D Norm,float alph)
-                CL = calcBlinFond(colorA,colorD,colorS,source,PoV,Norm,bet);
+            if(model == BlinnFong) {
+                CL = calcBlinnFong(colorA,colorD,colorS,source,PoV,Norm,bet);
                 MColoredPolygon(mp,QColor(CL.x(),
                                           CL.y(),
                                           CL.z())).drawPoly(p);
@@ -158,7 +157,7 @@ float calcLightCookTorrance(MVector4D Norm, MVector4D source, MVector4D PoV, flo
 
     return min(1.0, fresnel * geom * nroughness / (NdV + 1.0e-7));
 }
-MVector4D calcBlinFond(QColor colorA,QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm,float alph){
+MVector4D calcBlinnFong(QColor colorA,QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm,float alph){
     PoV.normalize();
     source.normalize();
 

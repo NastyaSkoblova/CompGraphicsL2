@@ -10,7 +10,7 @@ Widget::Widget(QWidget *parent) :
     setMouseTracking(true);
     ui->setupUi(this);
     switchshape = Thor;
-    model = Standart;
+    model = BlinnFong;
     MPI = atan(1)*4;
     hInvisible = false;
     C = false;
@@ -61,92 +61,65 @@ void Widget::paintEvent(QPaintEvent *)
     TR.rotateY((mx-hwidth)*0.0033);
     TR.scale(sc, sc,1);
     TR.transport(hwidth,hheight,0);
-    float dt1 = 2*M_PI/(D);
-    MPolyObject OThor,OPrism,OSphere,OParab, OSWatch;
-    MColoredPolygon Light(source,
+    float dt1 = 2*M_PI/(D+20);
+    MPolyObject OFigure;
+    /*MColoredPolygon Light(source,
                           MVector4D(source.x()+10,source.y(),source.z(),1),
-                          MVector4D(source.x(),source.y()+10,source.z(),1), QColor("White"));
+                          MVector4D(source.x(),source.y()+10,source.z(),1), QColor("White"));*/
     drawCoordinateSystem(painter,TR);
-    Light.drawPoly(painter);
+    //Light.drawPoly(painter);
     switch (switchshape){
     case Thor:
         for(float i = MPI/2, lim = -MPI*3/2; i > lim; i-=dt1){
             for(float j = MPI/2 ; j > lim; j-=dt1){
-                OThor.pushPoly(getThor1Poly(j,i,dt1,TR));
-                OThor.pushPoly(getThor2Poly(j,i,dt1,TR));
+                OFigure.pushPoly(getThorPoly(j,i,dt1,TR));
+                OFigure.pushPoly(getThorPoly(j+dt1,i+dt1,-dt1,TR));
             }
-        }
-        //OThor.drawShadowObj(painter,source);
-        if (hInvisible) OThor.hideInvisible();
-        if (C) {
-            OThor.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
-        } else {
-            OThor.drawPolyObject(painter);
         }
         break;
     case Sphere:
         for(float i = -MPI; i < MPI+0.00001; i+=dt1){
             for(float j = MPI; j > -0.00001; j-=dt1){
-                OSphere.pushPoly(getSphere1Poly(j,i,dt1,TR));
-                OSphere.pushPoly(getSphere2Poly(j,i,dt1,TR));
+                OFigure.pushPoly(getSpherePoly(j,i,dt1,TR));
+                OFigure.pushPoly(getSpherePoly(j+dt1,i+dt1,-dt1,TR));
             }
-        }
-        if (hInvisible) OSphere.hideInvisible();
-        if (C) {
-            OSphere.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
-        } else {
-            OSphere.drawPolyObject(painter);
         }
         break;
     case Parabaloid:
         A *= 0.1;
         for(float j = 0, lim1 = B*0.3, dt2 = lim1/D; j < lim1; j+=dt2){
             for(float i = 0, lim2 = 2*MPI; i < lim2; i+=dt1){
-                OParab.pushPoly(getParab1Poly(i,j,dt1,dt2,TR));
-                OParab.pushPoly(getParab2Poly(i,j,dt1,dt2,TR));
+                OFigure.pushPoly(getParabPoly(i,j,dt1,dt2,TR));
+                OFigure.pushPoly(getParabPoly(i+dt1,j+dt2,-dt1,-dt2,TR));
             }
         }
         A *= 10;
-        if (hInvisible) OParab.hideInvisible();
-        if (C) {
-            OParab.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
-        } else {
-            OParab.drawPolyObject(painter);
-        }
         break;
     case Prism:
         for(float j = 0, dt = 2*MPI/E,lim = 2*MPI; j < lim; j+=dt){
-            OPrism.pushPoly(getPrism1Poly(j, dt, TR));
-            OPrism.pushPoly(getPrism2Poly(j, dt, TR));
-            OPrism.pushPoly(getPrism3Poly(j, dt ,A, TR));
-            OPrism.pushPoly(getPrism4Poly(j, dt ,-A, TR));
-        }
-        if (hInvisible) OPrism.hideInvisible();
-        if (C) {
-            OPrism.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
-        } else {
-            OPrism.drawPolyObject(painter);
+            OFigure.pushPoly(getPrism1Poly(j, dt, TR));
+            OFigure.pushPoly(getPrism2Poly(j, dt, TR));
+            OFigure.pushPoly(getPrism3Poly(j, dt ,A, TR));
+            OFigure.pushPoly(getPrism4Poly(j, dt ,-A, TR));
         }
         break;
      case SWatch:
         A*=3;
         for(float i = 0, lim = 2*MPI; i < lim; i+=dt1 ){
             for(float j = 0; j < lim; j+=dt1 ){
-                OSWatch.pushPoly(MPolygon(getSWatch1Poly(i,j,dt1,TR)));
-                OSWatch.pushPoly(MPolygon(getSWatch2Poly(i,j,dt1,TR)));
+                OFigure.pushPoly(MPolygon(getSWatchPoly(i,j,dt1,TR)));
+                OFigure.pushPoly(MPolygon(getSWatchPoly(i+dt1,j+dt1,-dt1,TR)));
             }
         }
-        if (hInvisible) OSWatch.hideInvisible();
-        if (C) {
-            OSWatch.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());
-        } else {
-            OSWatch.drawPolyObject(painter);
-        }
         A/=3;
-
-
+        break;
     }
-
+    if (hInvisible) OFigure.hideInvisible();
+    if (C) {
+        OFigure.drawColoredObjWithLight(painter,colorA,colorD,colorS,source, model,ui->doubleSpinBox->value(), ui->doubleSpinBox_2->value());//rewrite *func
+    } else {
+        OFigure.drawPolyObject(painter);
+    }
     update();
 }
 
@@ -168,7 +141,7 @@ void Widget::drawCoordinateSystem(QPainter &p, MMatrix4D & M){
     p.setPen(QColor(0,0,0));
 
 }
-MPolygon Widget::getSWatch1Poly(float a,float b, float c, const MMatrix4D &M){
+MPolygon Widget::getSWatchPoly(float a,float b, float c, const MMatrix4D &M){
     float sa = sin(a);
     float ca = cos(a);
     float sac = sin(a+c);
@@ -179,21 +152,6 @@ MPolygon Widget::getSWatch1Poly(float a,float b, float c, const MMatrix4D &M){
     float cbc = cos(b+c);
     return MPolygon(M*MVector4D(A*ca*sb*sa,A*sa*sb,A*cb*sb*sa,1),
                     M*MVector4D(A*ca*sbc*sa,A*sa*sbc,A*cbc*sbc*sa,1),
-                    M*MVector4D(A*cac*sb*sac,A*sac*sb,A*cb*sb*sac,1));
-}
-
-MPolygon Widget::getSWatch2Poly(float a, float b, float c, const MMatrix4D &M)
-{
-    float sa = sin(a);
-    float ca = cos(a);
-    float sac = sin(a+c);
-    float cac = cos(a+c);
-    float sb = sin(b);
-    float cb = cos(b);
-    float sbc = sin(b+c);
-    float cbc = cos(b+c);
-    return MPolygon(M*MVector4D(A*ca*sbc*sa,A*sa*sbc,A*cbc*sbc*sa,1),
-                    M*MVector4D(A*cac*sbc*sac,A*sac*sbc,A*cbc*sbc*sac,1),
                     M*MVector4D(A*cac*sb*sac,A*sac*sb,A*cb*sb*sac,1));
 }
 
@@ -233,7 +191,7 @@ MPolygon Widget::getPrism4Poly(float a,float b, float c,const MMatrix4D &M){
                     M*MVector4D(0,c,0,1),
                     M*MVector4D(B*cab,c,B*sab,1));
 }
-MPolygon Widget::getThor1Poly(float a, float b, float c, const MMatrix4D &M){
+MPolygon Widget::getThorPoly(float a, float b, float c, const MMatrix4D &M){
     float sa = sin(a);
     float ca = cos(a);
     float sac = sin(a+c);
@@ -246,21 +204,8 @@ MPolygon Widget::getThor1Poly(float a, float b, float c, const MMatrix4D &M){
                     M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
                     M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
 }
-MPolygon Widget::getThor2Poly(float a, float b, float c, const MMatrix4D &M){
-    float sa = sin(a);
-    float ca = cos(a);
-    float sac = sin(a+c);
-    float cac = cos(a+c);
-    float sb = sin(b);
-    float cb = cos(b);
-    float sbc = sin(b+c);
-    float cbc = cos(b+c);
-    return MPolygon(M*MVector4D((A+B*cac)*cb,(A+B*cac)*sb,B*sac,1),
-                    M*MVector4D((A+B*cac)*cbc,(A+B*cac)*sbc,B*sac,1),
-                    M*MVector4D((A+B*ca)*cbc,(A+B*ca)*sbc,B*sa,1));
-}
 
-MPolygon Widget::getSphere1Poly(float a, float b, float c, const MMatrix4D &M){
+MPolygon Widget::getSpherePoly(float a, float b, float c, const MMatrix4D &M){
     float sa = sin(a);
     float ca = cos(a);
     float sac = sin(a+c);
@@ -273,36 +218,14 @@ MPolygon Widget::getSphere1Poly(float a, float b, float c, const MMatrix4D &M){
                     M*MVector4D(A*sa*cbc,A*sa*sbc,A*ca,1),
                     M*MVector4D(A*sac*cb,A*sac*sb,A*cac,1));
 }
-MPolygon Widget::getSphere2Poly(float a, float b, float c, const MMatrix4D &M){
-    float sa = sin(a);
-    float ca = cos(a);
-    float sac = sin(a+c);
-    float cac = cos(a+c);
-    float sb = sin(b);
-    float cb = cos(b);
-    float sbc = sin(b+c);
-    float cbc = cos(b+c);
-    return MPolygon(M*MVector4D(A*sa*cbc,A*sa*sbc,A*ca,1),
-                    M*MVector4D(A*sac*cbc,A*sac*sbc,A*cac,1),
-                    M*MVector4D(A*sac*cb,A*sac*sb,A*cac,1));
-}
-MPolygon Widget::getParab1Poly(float a, float b, float c, float e, const MMatrix4D &M){
+
+MPolygon Widget::getParabPoly(float a, float b, float c, float e, const MMatrix4D &M){
     float sa = sin(a);
     float ca = cos(a);
     float sac = sin(a+c);
     float cac = cos(a+c);
     return MPolygon(M*MVector4D(A*(b)*ca,A*(b)*sa,b*b,1),
                     M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
-                    M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
-}
-
-MPolygon Widget::getParab2Poly(float a, float b, float c, float e, const MMatrix4D &M){
-    float sa = sin(a);
-    float ca = cos(a);
-    float sac = sin(a+c);
-    float cac = cos(a+c);
-    return MPolygon(M*MVector4D(A*(b)*cac,A*(b)*sac,b*b,1),
-                    M*MVector4D(A*(b+e)*cac,A*(b+e)*sac,(b+e)*(b+e),1),
                     M*MVector4D(A*(b+e)*ca,A*(b+e)*sa,(b+e)*(b+e),1));
 }
 
@@ -370,6 +293,62 @@ void Widget::changeVisiblySoL(bool bl)
         ui->label_7->hide();
         ui->label_8->hide();
         ui->label_9->hide();
+    }
+    changeVisiblyRGB(bl);
+}
+
+void Widget::changeVisiblyRGB(bool bl)
+{
+    if(bl){
+        ui->label_10->show();
+        ui->spinBox_2->show();
+        ui->spinBox_3->show();
+        ui->spinBox_4->show();
+        if (model == CookTorrance) changeVisiblyCoTr(true);
+        if (model == BlinnFong) changeVisiblyBlFg(true);
+    } else {
+        ui->label_10->hide();
+        ui->spinBox_2->hide();
+        ui->spinBox_3->hide();
+        ui->spinBox_4->hide();
+        changeVisiblyCoTr(false);
+        changeVisiblyBlFg(false);
+    }
+
+
+}
+
+void Widget::changeVisiblyCoTr(bool bl)
+{
+    if (bl) {
+        ui->label_11->show();
+        ui->label_12->show();
+        ui->doubleSpinBox->show();
+        ui->doubleSpinBox_2->show();
+    } else {
+        ui->label_11->hide();
+        ui->label_12->hide();
+        ui->doubleSpinBox->hide();
+        ui->doubleSpinBox_2->hide();
+    }
+}
+
+void Widget::changeVisiblyBlFg(bool bl)
+{
+    if (bl) {
+        ui->spinBox_5->show();
+        ui->spinBox_6->show();
+        ui->spinBox_7->show();
+        ui->spinBox_8->show();
+        ui->spinBox_9->show();
+        ui->spinBox_10->show();
+    } else {
+        ui->spinBox_5->hide();
+        ui->spinBox_6->hide();
+        ui->spinBox_7->hide();
+        ui->spinBox_8->hide();
+        ui->spinBox_9->hide();
+        ui->spinBox_10->hide();
     }
 }
 
@@ -454,7 +433,12 @@ void Widget::on_comboBox_2_activated(const QString &arg1)
 {
     if (arg1 == "CookTorrance"){
         model = CookTorrance;
-    } else if (arg1 == "Standart") {
-        model = Standart;
+        changeVisiblyCoTr(true);
+        changeVisiblyBlFg(false);
+    } else if (arg1 == "BlinnFong") {
+        model = BlinnFong;
+        changeVisiblyCoTr(false);
+        changeVisiblyBlFg(true);
     }
 }
+

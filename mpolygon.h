@@ -4,7 +4,7 @@
 #include "MMatrix.h"
 #include <list>
 
-enum MLight{CookTorrance, Standart};
+enum MLight{CookTorrance, BlinnFong};
 
 class MPolygon
 {
@@ -47,7 +47,7 @@ public:
 
 };
 
-MVector4D calcBlinFond(QColor color, QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm, float alph);
+MVector4D calcBlinnFong(QColor color, QColor colorD, QColor colorS, MVector4D source, MVector4D PoV, MVector4D Norm, float alph);
 float calcLight(MVector4D P, MVector4D & N, MVector4D L);
 float fresnel(float cosVN, float a);
 float calcLightCookTorrance(MVector4D Norm, MVector4D source, MVector4D PoV, float fresnel, float roughness);
